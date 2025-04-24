@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Soccer Store</title>
+    <style>
+        table, td, td {
+            border: 1px solid black;
+            text-align: center;
+        }
+        footer {
+            text-align: center;
+            color: gray;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .catalog {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+        .product {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        .product img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+        }
+    </style>
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+</head>
+
+<body>
+    
+    <table style="width: 100%">
+        <tr>
+            <td><img src="IMG/SoccerStore.png" alt="Logo" width="200"></td>
+            <td style="font-size: 150px; color: rgb(18, 86, 139);">Soccer Store</td>
+        </tr>
+    </table>
+    
+    <table style="width: 100%">
+        <tr>
+            <td style="background-color: rgb(205, 202, 202);"><img src="IMG/home.gif" alt="" width="250" height="100"></td>
+        </tr>
+        <tr>
+            <td>Menu</td>
+        </tr>
+        
+        <tr>
+            <td>Content</td>
+        </tr>
+        
+        <tr>
+            <td>Footer</td>
+        </tr>
+    </table>
+
+    <h2 style="text-align:center;">Catálogo de Produtos</h2>
+    <div class="catalog" id="catalogContainer">
+        <!-- Produtos inseridos dinamicamente -->
+    </div>
+
+    <footer style="font-family:'Arial Narrow'; font-size: 15px">
+        Os preços, promoções, condições de pagamento, frete e produtos são válidos exclusivamente para compras realizadas via internet.
+        Fotos meramente ilustrativas. Copyright© 2003-2025 - soccerstore.com.br.
+    </footer>
+
+    <script>
+        // Inicializar Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyANbRt5myGoty6LN-NdbgeqjWEjm0LIh8I",
+            authDomain: "dbsoccerstore.firebaseapp.com",
+            projectId: "dbsoccerstore",
+            storageBucket: "dbsoccerstore.firebasestorage.app",
+            messagingSenderId: "647750341549",
+            appId: "1:647750341549:web:3baec0d8dddcf55e7a8724"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database().ref("produtos");
+
+        // Renderizar catálogo
+        db.on("value", (snapshot) => {
+            const container = document.getElementById("catalogContainer");
+            container.innerHTML = "";
+
+            let count = 0;
+            snapshot.forEach((childSnapshot) => {
+                if (count < 6) {
+                    const data = childSnapshot.val();
+                    const id = childSnapshot.key;
+                    const descricao = data.descricao || "Sem descrição";
+                    const imagem = data.imagem || "https://via.placeholder.com/200x200.png?text=Produto";
+
+                    const productDiv = document.createElement("div");
+                    productDiv.className = "product";
+                    productDiv.innerHTML = `
+						<a href="produto.html?id=${id}" style="text-decoration: none; color: inherit;">
+							<img src="${imagem}" alt="${descricao}">
+							<p style="font-weight: bold; text-align: center;">${data.descricao || id}</p>
+                            <p style="font-weight: bold; text-align: center;">${data.preco || "Preço indisponível"}</p>
+						</a>
+                    `;
+                    container.appendChild(productDiv);
+                    count++;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
