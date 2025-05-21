@@ -14,6 +14,8 @@
     <input type="text" id="productDesc" placeholder="Nome do Produto">
     <input type="text" id="productImage" placeholder="URL da Imagem">
     <input type="text" id="productPrice" placeholder="Preço do Produto (ex: R$ 99,90)">
+    <input type="text" id="productDetails" placeholder="Descrição do Produto">
+    <input type="text" id="productBrand" placeholder="Marca do Produto">
     <button onclick="addProduct()">Adicionar</button>
 
     <h3>Lista de Produtos</h3>
@@ -35,26 +37,32 @@
 
             function addProduct() {
                 let id = document.getElementById("productId").value.trim();
-                let desc = document.getElementById("productDesc").value.trim();
+                let nome = document.getElementById("productDesc").value.trim();
                 let img = document.getElementById("productImage").value.trim();
                 let preco = document.getElementById("productPrice").value.trim();
+                let detalhes = document.getElementById("productDetails").value.trim();
+                let marca = document.getElementById("productBrand").value.trim();
 
-                if (id && desc && preco) {
+                if (id && nome && preco && detalhes && marca) {
                     db.child(id).set({
-                        descricao: desc,
+                        descricao: nome,
                         imagem: img,
-                        preco: preco
+                        preco: preco,
+                        detalhes: detalhes,
+                        marca: marca
                     }).then(() => {
                         console.log("Produto adicionado com sucesso!");
                     }).catch(error => {
                         console.error("Erro ao adicionar:", error);
                     });
 
-                    // Limpar campos
+                    // Limpar os campos
                     document.getElementById("productId").value = "";
                     document.getElementById("productDesc").value = "";
                     document.getElementById("productImage").value = "";
                     document.getElementById("productPrice").value = "";
+                    document.getElementById("productDetails").value = "";
+                    document.getElementById("productBrand").value = "";
                 } else {
                     alert("Preencha todos os campos!");
                 }
@@ -69,12 +77,17 @@
             }
 
             function updateProduct(id) {
-                let newDesc = prompt("Digite o novo nome:");
-                let newPreco = prompt("Digite o novo preço:");
-                if (newDesc && newPreco) {
+                let newDesc = prompt("Novo nome:");
+                let newPreco = prompt("Novo preço:");
+                let newDetalhes = prompt("Nova descrição:");
+                let newMarca = prompt("Nova marca:");
+
+                if (newDesc && newPreco && newDetalhes && newMarca) {
                     db.child(id).update({
                         descricao: newDesc,
-                        preco: newPreco
+                        preco: newPreco,
+                        detalhes: newDetalhes,
+                        marca: newMarca
                     }).then(() => {
                         console.log("Produto atualizado:", id);
                     }).catch(error => console.error("Erro ao atualizar:", error));
@@ -90,11 +103,17 @@
                     let data = childSnapshot.val();
                     let desc = data.descricao || "Sem nome";
                     let preco = data.preco || "Sem preço";
+                    let detalhes = data.detalhes || "Sem descrição";
+                    let marca = data.marca || "Sem marca";
 
                     let li = document.createElement("li");
-                    li.innerHTML = `${id}: ${desc} - ${preco}
+                    li.innerHTML = `
+                        <strong>${id}</strong>: ${desc} - ${preco}<br>
+                        <em>${detalhes}</em><br>
+                        Marca: ${marca}<br>
                         <button onclick="deleteProduct('${id}')">Excluir</button>
-                        <button onclick="updateProduct('${id}')">Editar</button>`;
+                        <button onclick="updateProduct('${id}')">Editar</button>
+                    `;
                     list.appendChild(li);
                 });
             });
