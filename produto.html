@@ -27,6 +27,7 @@
         }
         p {
             font-size: 18px;
+            margin: 10px 0;
         }
         a {
             display: inline-block;
@@ -46,14 +47,15 @@
 <body>
 
     <div class="product-container">
-        <h1 id="tituloProduto">Carregando produto...</h1>
+        <h1 id="nomeProduto">Carregando produto...</h1>
         <img id="imagemProduto" src="" alt="Imagem do produto">
+        <p id="precoProduto"></p>
         <p id="descricaoProduto"></p>
+        <p id="marcaProduto"></p>
         <a href="index.html">← Voltar para o catálogo</a>
     </div>
 
     <script>
-        // Configuração Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyANbRt5myGoty6LN-NdbgeqjWEjm0LIh8I",
             authDomain: "dbsoccerstore.firebaseapp.com",
@@ -66,7 +68,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Capturar ID da URL
         const params = new URLSearchParams(window.location.search);
         const idProduto = params.get("id");
 
@@ -75,20 +76,22 @@
                 .then(snapshot => {
                     const data = snapshot.val();
                     if (data) {
-                        document.getElementById("tituloProduto").textContent = idProduto;
-                        document.getElementById("descricaoProduto").textContent = data.descricao || "Sem descrição";
+                        document.getElementById("nomeProduto").textContent = data.descricao || idProduto;
                         document.getElementById("imagemProduto").src = data.imagem || "https://via.placeholder.com/400x300.png?text=Sem+Imagem";
+                        document.getElementById("precoProduto").textContent = "Preço: " + (data.preco || "Não informado");
+                        document.getElementById("descricaoProduto").textContent = "Descrição: " + (data.detalhes || "Sem descrição");
+                        document.getElementById("marcaProduto").textContent = "Marca: " + (data.marca || "Sem marca");
                     } else {
-                        document.getElementById("tituloProduto").textContent = "Produto não encontrado.";
+                        document.getElementById("nomeProduto").textContent = "Produto não encontrado.";
                         document.getElementById("imagemProduto").style.display = "none";
                     }
                 })
                 .catch(error => {
-                    document.getElementById("tituloProduto").textContent = "Erro ao carregar produto.";
+                    document.getElementById("nomeProduto").textContent = "Erro ao carregar produto.";
                     console.error("Erro Firebase:", error);
                 });
         } else {
-            document.getElementById("tituloProduto").textContent = "ID do produto inválido.";
+            document.getElementById("nomeProduto").textContent = "ID do produto inválido.";
             document.getElementById("imagemProduto").style.display = "none";
         }
     </script>
