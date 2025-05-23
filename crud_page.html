@@ -1,127 +1,162 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD Firebase</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CRUD Firebase</title>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 </head>
 <body>
-    <h2>CRUD de Produtos</h2>
+  <h2>CRUD de Produtos</h2>
 
-    <input type="text" id="productId" placeholder="ID do Produto">
-    <input type="text" id="productDesc" placeholder="Nome do Produto">
-    <input type="text" id="productImage" placeholder="URL da Imagem">
-    <input type="text" id="productPrice" placeholder="Preço do Produto (ex: R$ 99,90)">
-    <input type="text" id="productDetails" placeholder="Descrição do Produto">
-    <input type="text" id="productBrand" placeholder="Marca do Produto">
-    <button onclick="addProduct()">Adicionar</button>
+  <input type="text" id="productId" placeholder="ID do Produto" />
+  <input type="text" id="productDesc" placeholder="Nome do Produto" />
+  <input type="text" id="productImage" placeholder="URL da Imagem" />
+  <input type="text" id="productPrice" placeholder="Preço do Produto (ex: R$ 99,90)" />
+  <input type="text" id="productDetails" placeholder="Descrição do Produto" />
+  <input type="text" id="productBrand" placeholder="Marca do Produto" />
+  <input type="number" id="productStock" placeholder="Quantidade em Estoque" min="0" />
 
-    <h3>Lista de Produtos</h3>
-    <ul id="productList"></ul>
+  <!-- Novo campo: Tamanho do Produto -->
+  <select id="productSize">
+    <option value="">Selecione o Tamanho</option>
+    <option value="35">35</option>
+    <option value="36">36</option>
+    <option value="37">37</option>
+    <option value="38">38</option>
+    <option value="39">39</option>
+    <option value="40">40</option>
+    <option value="41">41</option>
+    <option value="42">42</option>
+    <option value="43">43</option>
+    <option value="44">44</option>
+    <option value="P">P</option>
+    <option value="M">M</option>
+    <option value="G">G</option>
+  </select>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const firebaseConfig = {
-                apiKey: "AIzaSyANbRt5myGoty6LN-NdbgeqjWEjm0LIh8I",
-                authDomain: "dbsoccerstore.firebaseapp.com",
-                projectId: "dbsoccerstore",
-                storageBucket: "dbsoccerstore.firebasestorage.app",
-                messagingSenderId: "647750341549",
-                appId: "1:647750341549:web:3baec0d8dddcf55e7a8724"
-            };
+  <button onclick="addProduct()">Adicionar</button>
 
-            firebase.initializeApp(firebaseConfig);
-            const db = firebase.database().ref("produtos");
+  <h3>Lista de Produtos</h3>
+  <ul id="productList"></ul>
 
-            function addProduct() {
-                let id = document.getElementById("productId").value.trim();
-                let nome = document.getElementById("productDesc").value.trim();
-                let img = document.getElementById("productImage").value.trim();
-                let preco = document.getElementById("productPrice").value.trim();
-                let detalhes = document.getElementById("productDetails").value.trim();
-                let marca = document.getElementById("productBrand").value.trim();
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const firebaseConfig = {
+        apiKey: "AIzaSyANbRt5myGoty6LN-NdbgeqjWEjm0LIh8I",
+        authDomain: "dbsoccerstore.firebaseapp.com",
+        projectId: "dbsoccerstore",
+        storageBucket: "dbsoccerstore.firebasestorage.app",
+        messagingSenderId: "647750341549",
+        appId: "1:647750341549:web:3baec0d8dddcf55e7a8724"
+      };
 
-                if (id && nome && preco && detalhes && marca) {
-                    db.child(id).set({
-                        descricao: nome,
-                        imagem: img,
-                        preco: preco,
-                        detalhes: detalhes,
-                        marca: marca
-                    }).then(() => {
-                        console.log("Produto adicionado com sucesso!");
-                    }).catch(error => {
-                        console.error("Erro ao adicionar:", error);
-                    });
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database().ref("produtos");
 
-                    // Limpar os campos
-                    document.getElementById("productId").value = "";
-                    document.getElementById("productDesc").value = "";
-                    document.getElementById("productImage").value = "";
-                    document.getElementById("productPrice").value = "";
-                    document.getElementById("productDetails").value = "";
-                    document.getElementById("productBrand").value = "";
-                } else {
-                    alert("Preencha todos os campos!");
-                }
-            }
+      function addProduct() {
+        const id = document.getElementById("productId").value.trim();
+        const nome = document.getElementById("productDesc").value.trim();
+        const img = document.getElementById("productImage").value.trim();
+        const preco = document.getElementById("productPrice").value.trim();
+        const detalhes = document.getElementById("productDetails").value.trim();
+        const marca = document.getElementById("productBrand").value.trim();
+        const estoque = document.getElementById("productStock").value.trim();
+        const tamanho = document.getElementById("productSize").value;
 
-            function deleteProduct(id) {
-                if (confirm(`Tem certeza que deseja excluir o produto ${id}?`)) {
-                    db.child(id).remove()
-                        .then(() => console.log("Produto excluído:", id))
-                        .catch(error => console.error("Erro ao excluir:", error));
-                }
-            }
+        if (id && nome && preco && detalhes && marca && estoque !== "") {
+          const produto = {
+            descricao: nome,
+            imagem: img,
+            preco: preco,
+            detalhes: detalhes,
+            marca: marca,
+            estoque: parseInt(estoque),
+            tamanho: tamanho || null
+          };
 
-            function updateProduct(id) {
-                let newDesc = prompt("Novo nome:");
-                let newPreco = prompt("Novo preço:");
-                let newDetalhes = prompt("Nova descrição:");
-                let newMarca = prompt("Nova marca:");
+          db.child(id).set(produto)
+            .then(() => console.log("Produto adicionado com sucesso!"))
+            .catch(error => console.error("Erro ao adicionar:", error));
 
-                if (newDesc && newPreco && newDetalhes && newMarca) {
-                    db.child(id).update({
-                        descricao: newDesc,
-                        preco: newPreco,
-                        detalhes: newDetalhes,
-                        marca: newMarca
-                    }).then(() => {
-                        console.log("Produto atualizado:", id);
-                    }).catch(error => console.error("Erro ao atualizar:", error));
-                }
-            }
+          // Limpar campos
+          document.getElementById("productId").value = "";
+          document.getElementById("productDesc").value = "";
+          document.getElementById("productImage").value = "";
+          document.getElementById("productPrice").value = "";
+          document.getElementById("productDetails").value = "";
+          document.getElementById("productBrand").value = "";
+          document.getElementById("productStock").value = "";
+          document.getElementById("productSize").value = "";
+        } else {
+          alert("Preencha todos os campos obrigatórios!");
+        }
+      }
 
-            db.on("value", (snapshot) => {
-                let list = document.getElementById("productList");
-                list.innerHTML = "";
+      function deleteProduct(id) {
+        if (confirm(`Tem certeza que deseja excluir o produto ${id}?`)) {
+          db.child(id).remove()
+            .then(() => console.log("Produto excluído:", id))
+            .catch(error => console.error("Erro ao excluir:", error));
+        }
+      }
 
-                snapshot.forEach((childSnapshot) => {
-                    let id = childSnapshot.key;
-                    let data = childSnapshot.val();
-                    let desc = data.descricao || "Sem nome";
-                    let preco = data.preco || "Sem preço";
-                    let detalhes = data.detalhes || "Sem descrição";
-                    let marca = data.marca || "Sem marca";
+      function updateProduct(id) {
+        const newDesc = prompt("Novo nome:");
+        const newPreco = prompt("Novo preço:");
+        const newDetalhes = prompt("Nova descrição:");
+        const newMarca = prompt("Nova marca:");
+        const newEstoque = prompt("Novo estoque:");
+        const newTamanho = prompt("Novo tamanho:");
 
-                    let li = document.createElement("li");
-                    li.innerHTML = `
-                        <strong>${id}</strong>: ${desc} - ${preco}<br>
-                        <em>${detalhes}</em><br>
-                        Marca: ${marca}<br>
-                        <button onclick="deleteProduct('${id}')">Excluir</button>
-                        <button onclick="updateProduct('${id}')">Editar</button>
-                    `;
-                    list.appendChild(li);
-                });
-            });
+        if (newDesc && newPreco && newDetalhes && newMarca && newEstoque !== null) {
+          const updateData = {
+            descricao: newDesc,
+            preco: newPreco,
+            detalhes: newDetalhes,
+            marca: newMarca,
+            estoque: parseInt(newEstoque),
+            tamanho: newTamanho || null
+          };
 
-            window.addProduct = addProduct;
-            window.deleteProduct = deleteProduct;
-            window.updateProduct = updateProduct;
+          db.child(id).update(updateData)
+            .then(() => console.log("Produto atualizado:", id))
+            .catch(error => console.error("Erro ao atualizar:", error));
+        }
+      }
+
+      db.on("value", (snapshot) => {
+        const list = document.getElementById("productList");
+        list.innerHTML = "";
+
+        snapshot.forEach((childSnapshot) => {
+          const id = childSnapshot.key;
+          const data = childSnapshot.val();
+
+          const desc = data.descricao || "Sem nome";
+          const preco = data.preco || "Sem preço";
+          const detalhes = data.detalhes || "Sem descrição";
+          const marca = data.marca || "Sem marca";
+          const estoque = data.estoque ?? "Sem estoque";
+          const tamanho = data.tamanho ? ` | Tamanho: ${data.tamanho}` : "";
+
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <strong>${id}</strong>: ${desc} - ${preco}<br>
+            <em>${detalhes}</em><br>
+            Marca: ${marca} | Estoque: ${estoque}${tamanho}<br>
+            <button onclick="deleteProduct('${id}')">Excluir</button>
+            <button onclick="updateProduct('${id}')">Editar</button>
+          `;
+          list.appendChild(li);
         });
-    </script>
+      });
+
+      window.addProduct = addProduct;
+      window.deleteProduct = deleteProduct;
+      window.updateProduct = updateProduct;
+    });
+  </script>
 </body>
 </html>
